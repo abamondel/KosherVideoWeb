@@ -1,56 +1,105 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f2f5;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    margin: 0;
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(to bottom, #f1f5f9, #ffffff);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
+
+header, footer {
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 1rem;
+  text-align: center;
+}
+
 h1 {
-    color: #4CAF50;
+  margin: 0;
+  font-weight: 600;
 }
-.container {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    width: 100%;
-    text-align: center;
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-label, input, button, audio, video {
-    margin: 10px 0;
-    width: 100%;
+
+.upload-section,
+.convert-section,
+.slides-section {
+  background: #fff;
+  margin: 1rem;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
 }
+
+label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
 input[type="file"] {
-    padding: 10px;
+  display: none;
 }
+
+.custom-file-upload {
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background 0.3s, transform 0.3s;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.custom-file-upload:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
 input[type="number"] {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid #ced4da;
+  margin-bottom: 1rem;
+  width: 100%;
 }
-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 15px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+
+.btn {
+  background-color: #4CAF50;
+  border: none;
+  color: #fff;
+  padding: 1rem 2rem;
+  margin: 0.5rem 0;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: background 0.3s, transform 0.3s;
+  width: 100%;
 }
-button:hover {
-    background-color: #45a049;
+
+.btn:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
 }
-audio, video {
-    max-width: 100%;
-    border-radius: 8px;
+
+.video-output,
+audio {
+  margin-top: 1rem;
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+footer p {
+  margin: 0;
+  font-size: 0.9rem;
 }

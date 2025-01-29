@@ -36,12 +36,15 @@ document.getElementById('convertButton').addEventListener('click', async () => {
 
         const audioPlayer = document.getElementById('audioPlayer');
         audioPlayer.src = audioUrl;
+        audioPlayer.load(); // Ensure the player reloads the new source
 
         const downloadLink = document.createElement('a');
         downloadLink.href = audioUrl;
         downloadLink.download = 'converted_audio.mp3';
         downloadLink.textContent = 'Download Audio';
-        document.body.appendChild(downloadLink);
+        downloadLink.classList.add('btn');
+        document.querySelector('.convert-section').appendChild(downloadLink);
+        
     } catch (error) {
         console.error('Error converting video to audio:', error);
         alert('An error occurred while converting the video to audio.');
@@ -75,12 +78,14 @@ document.getElementById('convertToSlidesButton').addEventListener('click', async
 
         const videoPlayer = document.getElementById('videoPlayer');
         videoPlayer.src = videoUrl;
+        videoPlayer.load(); // Ensure the player reloads the new source
 
         const downloadLink = document.createElement('a');
         downloadLink.href = videoUrl;
         downloadLink.download = 'converted_video.mp4';
         downloadLink.textContent = 'Download Video';
-        document.body.appendChild(downloadLink);
+        downloadLink.classList.add('btn');
+        document.querySelector('.slides-section').appendChild(downloadLink);
     } catch (error) {
         console.error('Error converting video to slides:', error);
         alert('An error occurred while converting the video to slides.');

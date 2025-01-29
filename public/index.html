@@ -1,24 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video to Audio and Slides Converter</title>
-    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.10.0/dist/ffmpeg.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.10.0/dist/ffmpeg.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Video to Audio and Slides Converter</h1>
-        <label for="videoInput">Select a video file:</label>
-        <input type="file" id="videoInput" accept="video/*" title="Choose a video file to convert">
-        <button id="convertButton">Convert to Audio</button>
-        <audio id="audioPlayer" controls></audio>
-        <label for="frameRate">Frame Rate (frames per second):</label>
-        <input type="number" id="frameRate" min="1" value="1">
-        <button id="convertToSlidesButton">Convert to Slides</button>
-        <video id="videoPlayer" controls></video>
-    </div>
-    <script src="scripts.js"></script>
+  <header>
+    <h1>Video to Audio and Slides</h1>
+  </header>
+  <main>
+    <section class="upload-section">
+      <label for="videoInput" class="custom-file-upload">Choose Video</label>
+      <input type="file" id="videoInput" accept="video/*" title="Choose a video file" />
+    </section>
+
+    <section class="convert-section">
+      <button id="convertButton" class="btn">Convert to Audio</button>
+      <audio id="audioPlayer" controls></audio>
+    </section>
+
+    <section class="slides-section">
+      <label for="frameRate">Frame Rate (fps):</label>
+      <input type="number" id="frameRate" min="1" value="1" />
+      <button id="convertToSlidesButton" class="btn slides-btn">Convert to Slides</button>
+      <video id="videoPlayer" class="video-output" controls></video>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2023 Video Converter</p>
+  </footer>
+  <script src="scripts.js"></script>
 </body>
 </html>
