@@ -10,14 +10,27 @@ async function readFileAsArrayBuffer(file) {
     });
 }
 
+function cleanupPreviousConversion(sectionClass) {
+    const existingDownloadLink = document.querySelector(`.${sectionClass} a.btn`);
+    if (existingDownloadLink) {
+        existingDownloadLink.remove();
+    }
+}
+
 document.getElementById('convertButton').addEventListener('click', async () => {
+    cleanupPreviousConversion('convert-section');
+    
+    if (window.lastAudioUrl) {
+        URL.revokeObjectURL(window.lastAudioUrl);
+    }
+
     const videoFile = document.getElementById('videoInput').files[0];
     if (!videoFile) {
         alert('Please select a video file first.');
         return;
     }
 
-    try {
+    try {   
         if (!ffmpeg.isLoaded()) {
             await ffmpeg.load();
         }
@@ -32,19 +45,21 @@ document.getElementById('convertButton').addEventListener('click', async () => {
 
         const audioBlob = new Blob([data.buffer], { type: 'audio/mp3' });
         const audioUrl = URL.createObjectURL(audioBlob);
-        console.log('Audio URL:', audioUrl);
+        window.lastAudioUrl = audioUrl;
 
         const audioPlayer = document.getElementById('audioPlayer');
         audioPlayer.src = audioUrl;
-        audioPlayer.load(); // Ensure the player reloads the new source
+        audioPlayer.load();
 
         const downloadLink = document.createElement('a');
         downloadLink.href = audioUrl;
         downloadLink.download = 'converted_audio.mp3';
+        downloadLink.className = 'btn btn-primary mt-3';
         downloadLink.textContent = 'Download Audio';
-        downloadLink.classList.add('btn');
         document.querySelector('.convert-section').appendChild(downloadLink);
-        
+
+        ffmpeg.FS('unlink', 'input.mp4');
+        ffmpeg.FS('unlink', 'output.mp3');
     } catch (error) {
         console.error('Error converting video to audio:', error);
         alert('An error occurred while converting the video to audio.');
@@ -52,6 +67,12 @@ document.getElementById('convertButton').addEventListener('click', async () => {
 });
 
 document.getElementById('convertToSlidesButton').addEventListener('click', async () => {
+    cleanupPreviousConversion('slides-section');
+    
+    if (window.lastVideoUrl) {
+        URL.revokeObjectURL(window.lastVideoUrl);
+    }
+
     const videoFile = document.getElementById('videoInput').files[0];
     const frameRate = document.getElementById('frameRate').value;
     if (!videoFile) {
@@ -65,29 +86,46 @@ document.getElementById('convertToSlidesButton').addEventListener('click', async
         }
 
         const videoData = await readFileAsArrayBuffer(videoFile);
-        console.log('Video data loaded:', videoData);
-
         ffmpeg.FS('writeFile', 'input.mp4', new Uint8Array(videoData));
-        await ffmpeg.run('-i', 'input.mp4', '-vf', `fps=${frameRate}`, '-max_muxing_queue_size', '9999', 'output.mp4');
-        const data = ffmpeg.FS('readFile', 'output.mp4');
-        console.log('FFmpeg output data:', data);
 
-        const videoBlob = new Blob([data.buffer], { type: 'video/mp4' });
-        const videoUrl = URL.createObjectURL(videoBlob);
-        console.log('Video URL:', videoUrl);
+        // Single FFmpeg command to create slideshow
+        await ffmpeg.run(
+            '-i', 'input.mp4',
+            '-vf', `fps=${frameRate},setpts=N/(${frameRate}*TB)`,
+            '-force_key_frames', `expr:gte(t,n_forced*${1/frameRate})`,
+            '-c:v', 'libx264',
+            '-c:a', 'copy',
+            '-pix_fmt', 'yuv420p',
+            'output.mp4'
+        );
+
+        // Read and display output
+        const data = ffmpeg.FS('readFile', 'output.mp4');
+        const slideShowBlob = new Blob([data.buffer], { type: 'video/mp4' });
+        const slideShowUrl = URL.createObjectURL(slideShowBlob);
+        window.lastVideoUrl = slideShowUrl;
 
         const videoPlayer = document.getElementById('videoPlayer');
-        videoPlayer.src = videoUrl;
-        videoPlayer.load(); // Ensure the player reloads the new source
+        videoPlayer.src = slideShowUrl;
+        videoPlayer.load();
 
         const downloadLink = document.createElement('a');
-        downloadLink.href = videoUrl;
-        downloadLink.download = 'converted_video.mp4';
-        downloadLink.textContent = 'Download Video';
-        downloadLink.classList.add('btn');
+        downloadLink.href = slideShowUrl;
+        downloadLink.download = 'slideshow.mp4';
+        downloadLink.className = 'btn btn-primary mt-3';
+        downloadLink.textContent = 'Download Slideshow';
         document.querySelector('.slides-section').appendChild(downloadLink);
+
+        // Cleanup
+        ffmpeg.FS('unlink', 'input.mp4');
+        ffmpeg.FS('unlink', 'output.mp4');
     } catch (error) {
-        console.error('Error converting video to slides:', error);
-        alert('An error occurred while converting the video to slides.');
+        console.error('Error creating slideshow:', error);
+        alert('An error occurred while creating the slideshow.');
     }
+});
+
+document.getElementById('videoInput').addEventListener('change', function(e) {
+    const fileName = e.target.files[0]?.name || 'No file chosen';
+    document.getElementById('fileNameDisplay').textContent = fileName;
 });
