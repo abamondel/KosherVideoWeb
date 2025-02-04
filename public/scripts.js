@@ -86,29 +86,43 @@ document.getElementById('convertToSlidesButton').addEventListener('click', async
         }
 
         const videoData = await readFileAsArrayBuffer(videoFile);
-        ffmpeg.FS('writeFile', 'input.mp4', new Uint8Array(videoData));
+        console.log('Video data loaded:', videoData);
 
-        // Single FFmpeg command to create slideshow
+        // Write input video
+        ffmpeg.FS('writeFile', 'input.mp4', new Uint8Array(videoData));
+        
+        // Extract audio first
+        await ffmpeg.run('-i', 'input.mp4', '-vn', '-acodec', 'copy', 'audio.aac');
+        
+        // Create slideshow with the specified framerate
         await ffmpeg.run(
             '-i', 'input.mp4',
-            '-vf', `fps=${frameRate},setpts=N/(${frameRate}*TB)`,
-            '-force_key_frames', `expr:gte(t,n_forced*${1/frameRate})`,
-            '-c:v', 'libx264',
-            '-c:a', 'copy',
-            '-pix_fmt', 'yuv420p',
-            'output.mp4'
+            '-vf', `fps=${frameRate}`,
+            '-vsync', 'vfr',
+            'slides.mp4'
         );
 
-        // Read and display output
-        const data = ffmpeg.FS('readFile', 'output.mp4');
+        // Combine slides with original audio
+        await ffmpeg.run(
+            '-i', 'slides.mp4',
+            '-i', 'audio.aac',
+            '-c:v', 'copy',
+            '-c:a', 'aac',
+            'output_slideshow.mp4'
+        );
+
+        // Read the final file
+        const data = ffmpeg.FS('readFile', 'output_slideshow.mp4');
         const slideShowBlob = new Blob([data.buffer], { type: 'video/mp4' });
         const slideShowUrl = URL.createObjectURL(slideShowBlob);
         window.lastVideoUrl = slideShowUrl;
 
+        // Update video player
         const videoPlayer = document.getElementById('videoPlayer');
         videoPlayer.src = slideShowUrl;
         videoPlayer.load();
 
+        // Create download link
         const downloadLink = document.createElement('a');
         downloadLink.href = slideShowUrl;
         downloadLink.download = 'slideshow.mp4';
@@ -118,7 +132,9 @@ document.getElementById('convertToSlidesButton').addEventListener('click', async
 
         // Cleanup
         ffmpeg.FS('unlink', 'input.mp4');
-        ffmpeg.FS('unlink', 'output.mp4');
+        ffmpeg.FS('unlink', 'audio.aac');
+        ffmpeg.FS('unlink', 'slides.mp4');
+        ffmpeg.FS('unlink', 'output_slideshow.mp4');
     } catch (error) {
         console.error('Error creating slideshow:', error);
         alert('An error occurred while creating the slideshow.');
